@@ -13,7 +13,7 @@ import {
 // Register necessary Chart.js components
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title)
 
-const BarChart = ({ stats, city }) => {
+const BarChart = ({ stats, city, placeholder }) => {
     const allYears = ["2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"];
     
     const years = allYears;
@@ -23,7 +23,7 @@ const BarChart = ({ stats, city }) => {
         labels: years,
         datasets: [
             {
-                label: "Mean Precipitation (mm)",
+                label: `Mean ${placeholder}$ (mm)`,
                 data: values,
                 backgroundColor: "rgba(54, 162, 235, 0.6)",
                 borderColor: "rgba(54, 162, 235, 1)",
@@ -37,7 +37,7 @@ const BarChart = ({ stats, city }) => {
         plugins: {
             title: city ? {  // Display title only if city is known
                 display: true,
-                text: `Annual Mean Precipitation in ${city}`,
+                text: `Annual Mean ${placeholder}  in ${city}`,
                 font: { size: 9 },
             } : { display: false },  // Hide title if city is unknown
             legend: { display: false },
@@ -50,14 +50,13 @@ const BarChart = ({ stats, city }) => {
                 ticks: { font: { size: 10 } },
             },
             y: {
-                title: { display: true, text: "Mean Precipitation (mm)", font: { size: 10 } },
                 grid: { color: "rgba(200, 200, 200, 0.3)" },
                 ticks: { beginAtZero: true, font: { size: 10 } },
             },
         },
     };
 
-    return <Bar data={chartData} options={options} />;
+    return <Bar data={chartData} options={options}  />;
 };
 
 export default BarChart;

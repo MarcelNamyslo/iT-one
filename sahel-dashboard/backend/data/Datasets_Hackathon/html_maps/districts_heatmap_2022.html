@@ -155,7 +155,7 @@
         }
 
         function geo_json_5b210e95a32a2ccbca6403a253355f72_onEachFeature(feature, layer) {
-            console.log("🔍 Feature Properties:", feature.properties); // Debugging log
+           // console.log("🔍 Feature Properties:", feature.properties); // Debugging log
             if (feature.properties) {
         const city = feature.properties.ADM3_EN || "Unknown";  // Use correct property key
         const population = feature.properties.Population || "0";
@@ -239,7 +239,7 @@
     
     let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
     let fields = ["ADM3_EN", "Precipitation", "Absorption", "Classification"];
-    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:", "Mean Classification:"];
+    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:"];
     let table = '<table>' +
         String(
         fields.map(
@@ -289,7 +289,7 @@
 
         
     
-            geo_json_6b60b322fc2200b4128623540dc69a4f.addTo(map_9e5b1b072e21e7705120700965c40f70);
+           // geo_json_6b60b322fc2200b4128623540dc69a4f.addTo(map_9e5b1b072e21e7705120700965c40f70);
         
     
         function geo_json_d59583fd91a0a53a44fb235b94fe6020_styler(feature) {
@@ -319,7 +319,7 @@
 
         
     
-            geo_json_d59583fd91a0a53a44fb235b94fe6020.addTo(map_9e5b1b072e21e7705120700965c40f70);
+          //  geo_json_d59583fd91a0a53a44fb235b94fe6020.addTo(map_9e5b1b072e21e7705120700965c40f70);
         
     
             var marker_7888eb8fa165ab4d798382bff60de5a6 = L.marker(

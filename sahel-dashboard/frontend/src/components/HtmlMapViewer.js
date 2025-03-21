@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const HtmlMapViewer = ({ selectedYear }) => {
+const HtmlMapViewer = ({ onYearSelect, minYear = 2010, maxYear = 2024, selectedYear, onDataTypeSelect }) => {
     const [htmlFiles, setHtmlFiles] = useState([]);
-    const [selectedHtml, setSelectedHtml] = useState(null);
+    const [selectedHtml, setSelectedHtml] = useState("districts_heatmap_2010.html");
 
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/api/html-maps/")
-            .then(response => {
-                setHtmlFiles(response.data.html_maps);
-            })
+            .then(response => setHtmlFiles(response.data.html_maps))
             .catch(error => console.error("❌ Error fetching HTML maps:", error));
     }, []);
 
-    // Extract year from filename
     const extractYearFromFilename = (filename) => {
         const match = filename.match(/(\d{4})/);
         return match ? match[1] : null;
@@ -21,33 +18,18 @@ const HtmlMapViewer = ({ selectedYear }) => {
 
     useEffect(() => {
         if (selectedYear && htmlFiles.length > 0) {
-            // Find the first file that contains the selected year
             const matchedHtml = htmlFiles.find(file => extractYearFromFilename(file) === selectedYear);
-
-            if (matchedHtml) {
-                setSelectedHtml(matchedHtml);
-            } else {
-                setSelectedHtml(null); // Clear if no match
-            }
+            setSelectedHtml(matchedHtml || null);
         }
     }, [selectedYear, htmlFiles]);
 
-    return (
-        <div style={{ width: "98%", height: "98%", alignItems: "center", justifyContent: "center" }}>
-            <select
-                onChange={(e) => setSelectedHtml(e.target.value)}
-                value={selectedHtml || ""}
-                style={{ margin: "10px", width: "90%", padding: "5px" }}
-            >
-                {htmlFiles.length === 0 ? (
-                    <option>No maps available</option>
-                ) : (
-                    htmlFiles.map((file, index) => (
-                        <option key={index} value={file}>{file}</option>
-                    ))
-                )}
-            </select>
+    const handleSliderChange = (e) => {
+        const newYear = e.target.value;
+        onYearSelect(newYear);
+    };
 
+    return (
+        <div style={{margin: "15px", width: "100%", height: "93%", alignItems: "center", justifyContent: "center" }}>
             {selectedHtml && (
                 <iframe
                     title="HTML Map"
@@ -55,8 +37,34 @@ const HtmlMapViewer = ({ selectedYear }) => {
                     style={{ width: "95%", height: "92%", border: "none" }}
                 />
             )}
+
+            <div style={{ justifyContent: "center" }}>
+                <h4 style={{ color: "black", marginBottom: "3px", fontSize: "10px",  textAlign: "center" }}>
+                    Selected Year: {selectedYear}
+                </h4>
+
+                <input
+                    type="range"
+                    min={minYear}
+                    max={maxYear}
+                    step={1}
+                    value={selectedYear}
+                    onChange={handleSliderChange}
+                    style={{
+                        width: "90%",
+                        appearance: "none",
+                        background: "black",
+                        height: "8px",
+                        borderRadius: "5px",
+                        outline: "none",
+                        cursor: "pointer",
+                        margin: "1px",
+                    }}
+                />
+            </div>
         </div>
     );
 };
+
 
 export default HtmlMapViewer;

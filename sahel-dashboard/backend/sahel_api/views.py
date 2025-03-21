@@ -1,12 +1,17 @@
 import os
 import rasterio
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  
 import matplotlib.pyplot as plt
 from io import BytesIO
+from rasterio.mask import mask
+from shapely.geometry import mapping
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
+from shapely.ops import unary_union
 import geopandas as gpd
 import pandas as pd
 import re
@@ -17,7 +22,9 @@ def list_files(request):
     Returns a list of available TIFF files from MEDIA_ROOT, including folder structure.
     """
     data_path = settings.MEDIA_ROOT  # Directory where TIFF files are stored
+    data_path1 = settings.HTML_ROOT
     files = []
+    files1 = []
 
     if not os.path.exists(data_path):
         return JsonResponse({"error": "Data folder not found"}, status=404)
@@ -29,8 +36,17 @@ def list_files(request):
                 # Get relative path including subfolders
                 relative_path = os.path.relpath(os.path.join(root, filename), data_path)
                 files.append(relative_path.replace("\\", "/"))  # Normalize for Windows
+            
+    for root, _, filenames in os.walk(data_path1):
+        for filename in filenames:        
+            if filename.endswith(".html"):
+                relative_path = os.path.relpath(os.path.join(root, filename), data_path)
+                files1.append(relative_path.replace("\\", "/"))
 
-    return JsonResponse({"files": files})
+    return JsonResponse({
+        "files": files,
+        "files1": files1  # ✅ Now returned
+    })
 
 @api_view(['GET'])
 def list_html_maps(request):
@@ -93,88 +109,111 @@ def save_map_data(request):
     for the region with FID_1 == 66, returning a JSON mapping year -> mean precipitation.
     """
     if request.method == "POST":
-        # Folder containing the TIFF files
-        tif_folder = r"C:\iT-one\sahel-dashboard\backend\data\Datasets_Hackathon\Climate_Precipitation_Data"
-        # Path to the shapefile with administrative boundaries
+        # Folder paths
+        precipitation_tif_folder = r"C:\iT-one\sahel-dashboard\backend\data\Datasets_Hackathon\Climate_Precipitation_Data"
+        gpp_tif_folder = r"C:\iT-one\sahel-dashboard\backend\data\Datasets_Hackathon\MODIS_Gross_Primary_Production_GPP"
         shapefile_path = r"C:\iT-one\sahel-dashboard\backend\data\Datasets_Hackathon\Admin_layers\Assaba_Districts_layer.shp"
-        
+
         try:
-            # Read the region shapefile using GeoPandas
+            # Read region shapefile
             regions_gdf = gpd.read_file(shapefile_path)
-            # Filter for the target region with FID_1 equal to 66
 
             data = json.loads(request.body)
             district_name = data.get("city", "").strip()
-            print(district_name)
+            print("Requested District:", district_name)
 
             target_region = regions_gdf[regions_gdf["ADM3_EN"] == district_name]
-            
+            print("Target Region:", target_region)
+
             if target_region.empty:
-                return JsonResponse({"error": "Region with FID_1 66 not found."}, status=404)
+                return JsonResponse({"error": f"Region '{district_name}' not found."}, status=404)
 
-            # Dictionary to hold the statistics per year
-            stats = {}
+            # ✅ Define the geometry once after checking target_region is not empty
+            from shapely.ops import unary_union
+            target_geometry = target_region.geometry.unary_union
 
-            # Loop over all TIFF files in the folder
-            for filename in os.listdir(tif_folder):
+            # Initialize results
+            precipitation_stats = {}
+            gpp_stats = {}
+
+            print(1)
+
+            # =========================
+            # 1. Process Precipitation
+            # =========================
+            for filename in os.listdir(precipitation_tif_folder):
                 if filename.lower().endswith(".tif"):
-                    file_path = os.path.join(tif_folder, filename)
-                 
-                    # Extract year from the filename (assuming a four-digit year appears in the name)
                     m = re.search(r'(\d{4})', filename)
                     if not m:
-                        continue  # Skip files without a year in the name
+                        continue
                     year = m.group(1)
 
-                    # Open the TIFF file
+                    file_path = os.path.join(precipitation_tif_folder, filename)
                     with rasterio.open(file_path) as dataset:
-                        band1 = dataset.read(1)
+                        # Clip raster to region polygon
+                        clipped_image, _ = mask(dataset, [mapping(target_region.geometry.iloc[0])], crop=True)
+                        band = clipped_image[0]
                         nodata = dataset.nodata
-                        rows, cols = band1.shape
-                    
-                        # Collect all valid (lon, lat, value) tuples
-                        data = []
-                        for row in range(rows):
-                            for col in range(cols):
-                                value = band1[row, col]
-                                if value == nodata:
-                                    continue
-                                lon, lat = dataset.xy(row, col)
-                                data.append((lon, lat, value))
-                        
-                        # Skip if no valid data found
-                        if not data:
-                            continue
-                        
-                        # Create a DataFrame from the raster data
-                        df = pd.DataFrame(data, columns=["Longitude", "Latitude", "Precipitation"])
-                        # Convert DataFrame to a GeoDataFrame
-                        raster_gdf = gpd.GeoDataFrame(
-                            df, 
-                            geometry=gpd.points_from_xy(df.Longitude, df.Latitude),
-                            crs=dataset.crs
-                        )
-                        
-                        # Ensure both GeoDataFrames share the same CRS (transform if necessary)
-                        if raster_gdf.crs != target_region.crs:
-                            raster_gdf = raster_gdf.to_crs(target_region.crs)
-                        
-                        # Perform a spatial join to find points within the target region
-                        joined = gpd.sjoin(raster_gdf, target_region, how="inner", predicate="within")
-                        
-                        if joined.empty:
-                            # No data points fall within the target region for this file
-                            continue
-                        
-                        # Compute the mean precipitation for the region
-                        mean_precip = joined["Precipitation"].mean()
-                        stats[year] = mean_precip
-                        
 
-            # Return the computed statistics as JSON
-            stats = {year: float(value) for year, value in stats.items()}
-            print(stats)
-            return JsonResponse({"message": "Data computed successfully", "stats": stats}, status=200)
+                        valid_mask = band != nodata
+                        if not np.any(valid_mask):
+                            continue
+
+                        mean_value = band[valid_mask].mean()
+                        precipitation_stats[year] = mean_value
+
+            # ====================
+            # 2. Process GPP Data
+            # ====================
+            gpp_data = []
+
+            print(2)
+            try:
+                for filename in os.listdir(gpp_tif_folder):
+                    if filename.lower().endswith(".tif"):
+                        m = re.search(r'(\d{4})', filename)
+                        if not m:
+                            continue
+                        year = m.group(1)
+
+                        file_path = os.path.join(gpp_tif_folder, filename)
+                        with rasterio.open(file_path) as dataset:
+                            try:
+                                # Reproject the region polygon to match raster CRS
+                                geometry_for_mask = gpd.GeoSeries([target_geometry], crs=target_region.crs).to_crs(dataset.crs).iloc[0]
+
+                                # Clip raster to the region
+                                clipped_image, _ = mask(dataset, [mapping(geometry_for_mask)], crop=True)
+                                band = clipped_image[0]
+                                nodata = dataset.nodata
+
+                                valid_mask = band != nodata
+                                if not np.any(valid_mask):
+                                    continue
+
+                                mean_value = band[valid_mask].mean()
+                                gpp_stats[year] = mean_value
+
+                            except Exception as e:
+                                print(f"Error processing {filename}: {e}")
+
+
+            except Exception as e:
+                print({"error": str(e)})
+                return JsonResponse({"error": str(e)}, status=500)
+            # Final combined return
+            print("???????????????")
+
+            precipitation_stats = {year: float(val) for year, val in precipitation_stats.items()}
+            gpp_stats = {year: float(val) for year, val in gpp_stats.items()}
+
+            response_data = {
+                "message": "Data computed successfully",
+                "stats": precipitation_stats,
+                "gpp": gpp_stats
+            }
+            print("response_data: " + str(response_data))
+            return JsonResponse(response_data, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)

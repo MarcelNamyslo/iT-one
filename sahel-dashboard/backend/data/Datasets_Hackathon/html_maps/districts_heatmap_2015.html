@@ -155,7 +155,7 @@
         }
 
         function geo_json_8c629cbbafe0b128a153a1c3608eb724_onEachFeature(feature, layer) {
-            console.log("🔍 Feature Properties:", feature.properties); // Debugging log
+          //  console.log("🔍 Feature Properties:", feature.properties); // Debugging log
             if (feature.properties) {
         const city = feature.properties.ADM3_EN || "Unknown";  // Use correct property key
         const population = feature.properties.Population || "0";
@@ -230,15 +230,15 @@
   "sticky": true,
   "className": "foliumtooltip",
 });
-                     
-    
+
+
     geo_json_8c629cbbafe0b128a153a1c3608eb724.bindPopup(
     function(layer){
     let div = L.DomUtil.create('div');
     
     let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
     let fields = ["ADM3_EN", "Precipitation", "Absorption", "Classification"];
-    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:", "Mean Classification:"];
+    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:"];
     let table = '<table>' +
         String(
         fields.map(
@@ -288,7 +288,7 @@
 
         
     
-            geo_json_aa4836b0cb8183182f7689b13fbf20db.addTo(map_2d0684f1ade944bca69f9565bf8f0d0a);
+            // geo_json_aa4836b0cb8183182f7689b13fbf20db.addTo(map_2d0684f1ade944bca69f9565bf8f0d0a);
         
     
         function geo_json_218fb379e699b37285fc9322f35fb822_styler(feature) {
@@ -318,7 +318,7 @@
 
         
     
-            geo_json_218fb379e699b37285fc9322f35fb822.addTo(map_2d0684f1ade944bca69f9565bf8f0d0a);
+            // geo_json_218fb379e699b37285fc9322f35fb822.addTo(map_2d0684f1ade944bca69f9565bf8f0d0a);
         
     
             var marker_68d7e81f1b158ba28f1d153489bde5de = L.marker(

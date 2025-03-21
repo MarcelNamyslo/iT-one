@@ -32,12 +32,12 @@ const DataAnalysis = () => {
             {/* First Box: Bar Chart using stats from backend */}
             <div style={{
                 border: "2px solid gray",
-                height: "100%",
+                
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
             }}>
-                <BarChart stats={data ? data.stats : {}} city={data ? data.city : ""} />
+                <BarChart stats={data ? data.stats : {}} city={data ? data.city : ""} placeholder= "Precipitation"/>
             </div>
 
             {/* Second Box: List of the raw statistics
@@ -59,8 +59,14 @@ const DataAnalysis = () => {
             </div> */}
 
             {/* Third Box: You can place any other analysis or leave empty */}
-            <div style={{ border: "2px solid gray", height: "100%" }}>
-                {/* Additional content */}
+            <div style={{
+                border: "2px solid gray",
+                
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+            }}>
+            <BarChart stats={data ? data.gpp : {}} city={data ? data.city : ""} placeholder= "Absorption" />
             </div>
         </div>
     );

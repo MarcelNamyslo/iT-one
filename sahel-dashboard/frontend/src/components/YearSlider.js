@@ -77,10 +77,11 @@ const YearSlider = ({ onYearSelect, minYear = 2010, maxYear = 2023, selectedYear
                     width: "90%",
                     appearance: "none",
                     background: "black", // Slider track
-                    height: "5px",
+                    height: "8px",
                     borderRadius: "5px",
                     outline: "none",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    margin: "1px",
                 }}
             />
             </div>

@@ -8,9 +8,10 @@ import YearScroller from "./components/YearScroller";
 import YearSlider from "./components/YearSlider";
 import HtmlMapViewer from "./components/HtmlMapViewer";
 import SelectedInfo from "./components/SelectedInfo"
+//import colors from "../theme/colors";
 function App() {
     const [availableFiles, setAvailableFiles] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile, setSelectedFile] = useState("Climate_Precipitation_Data/2010R.tif");
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedDataType, setSelectedDataType] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
@@ -89,7 +90,9 @@ function App() {
     };
 
     return (
+        
         <MainPage>
+             
             <FileList 
                 onFileSelect={handleFileSelect}
                 isHidden={isFileListHidden}
@@ -102,7 +105,7 @@ function App() {
                 <div style={{ border: "2px solid gray", width: "50%", alignItems: "center",
             justifyContent: "center",}}> 
                 
-                <HtmlMapViewer selectedYear={selectedYear} />
+                <HtmlMapViewer  onYearSelect={handleYearSelect} selectedYear={selectedYear} onDataTypeSelect={handleDataTypeSelect} />
 
                     
                 </div>

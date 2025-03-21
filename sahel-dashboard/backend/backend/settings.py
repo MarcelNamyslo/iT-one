@@ -19,10 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CORS_ALLOW_ALL_ORIGINS = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'data','Datasets_Hackathon')
+HTML_ROOT= os.path.join(MEDIA_ROOT, "raining_heatmaps")
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(MEDIA_ROOT, "html_maps")]
-
+STATICFILES_DIRS = [
+    os.path.join(MEDIA_ROOT, "html_maps"), 
+    os.path.join(MEDIA_ROOT, "raining_heatmaps"),  # ✅ Add this line
+]
 # Ensure Django serves static files during development
 from django.conf import settings
 from django.conf.urls.static import static

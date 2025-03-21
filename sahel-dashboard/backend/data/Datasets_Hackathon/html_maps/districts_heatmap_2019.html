@@ -155,7 +155,7 @@
         }
 
         function geo_json_268a7aeef30e991143703e5c98d2181c_onEachFeature(feature, layer) {
-            console.log("🔍 Feature Properties:", feature.properties); // Debugging log
+           // console.log("🔍 Feature Properties:", feature.properties); // Debugging log
             if (feature.properties) {
         const city = feature.properties.ADM3_EN || "Unknown";  // Use correct property key
         const population = feature.properties.Population || "0";
@@ -238,7 +238,7 @@
     
     let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
     let fields = ["ADM3_EN", "Precipitation", "Absorption", "Classification"];
-    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:", "Mean Classification:"];
+    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:"];
     let table = '<table>' +
         String(
         fields.map(
