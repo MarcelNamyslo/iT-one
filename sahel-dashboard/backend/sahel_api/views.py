@@ -81,6 +81,7 @@ def process_tiff(request, filepath):
             nodata = dataset.nodata  # Get NoData value
 
         # Replace NoData values with NaN
+        band1 = np.where(band1 == 65533.0, np.nan, band1)
         band1 = np.where(band1 == nodata, np.nan, band1)
 
         # Create a plot

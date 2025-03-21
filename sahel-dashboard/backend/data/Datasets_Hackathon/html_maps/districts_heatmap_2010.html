@@ -211,7 +211,7 @@
     
     let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
     let fields = ["ADM3_EN"];
-    let aliases = ["District:"];
+    let aliases = ["District:"];    
     let table = '<table>' +
         String(
         fields.map(
@@ -238,7 +238,7 @@
     
     let handleObject = feature=>typeof(feature)=='object' ? JSON.stringify(feature) : feature;
     let fields = ["ADM3_EN", "Precipitation", "Absorption", "Classification"];
-    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:"];
+    let aliases = ["City:", "Mean Precipitation:", "Mean Absorption:", "Mean Classification:"];
     let table = '<table>' +
         String(
         fields.map(
@@ -288,7 +288,7 @@
 
         
     
-            //geo_json_719533aa7a2b0fba67ea054fc71359e4.addTo(map_7fa9dfe032e176853537b502bf95ca36);
+            geo_json_719533aa7a2b0fba67ea054fc71359e4.addTo(map_7fa9dfe032e176853537b502bf95ca36);
         
     
         function geo_json_b19ea4a1991525c63751bd1e564e9d48_styler(feature) {
@@ -318,7 +318,7 @@
 
         
     
-           // geo_json_b19ea4a1991525c63751bd1e564e9d48.addTo(map_7fa9dfe032e176853537b502bf95ca36);
+           geo_json_b19ea4a1991525c63751bd1e564e9d48.addTo(map_7fa9dfe032e176853537b502bf95ca36);
         
     
             var marker_3feb99ee1f8f29680c59e31f8f813916 = L.marker(

@@ -63,10 +63,10 @@ const YearSlider = ({ onYearSelect, minYear = 2010, maxYear = 2023, selectedYear
             </div>
             <div> 
             {/* Selected Year Display */}
-            <h4 style={{ color: "black", marginBottom: "3px", fontSize: "10px" }}>Selected Year: {year}</h4>
+            {/* <h4 style={{ color: "black", marginBottom: "3px", fontSize: "10px" }}>Selected Year: {year}</h4> */}
 
             {/* Year Slider */}
-            <input
+            {/* <input
                 type="range"
                 min={minYear}
                 max={maxYear}
@@ -83,7 +83,7 @@ const YearSlider = ({ onYearSelect, minYear = 2010, maxYear = 2023, selectedYear
                     cursor: "pointer",
                     margin: "1px",
                 }}
-            />
+            /> */}
             </div>
             <style>
                 {`
